@@ -74,7 +74,8 @@ static int load_libraw(void) {
     p_set_output_bps   = (fn_libraw_set_output_bps)GetProcAddress(g_libraw, "libraw_set_output_bps");
     p_set_no_auto_bright = (fn_libraw_set_no_auto_bright)GetProcAddress(g_libraw, "libraw_set_no_auto_bright");
     p_set_output_tif   = (fn_libraw_set_output_tif)GetProcAddress(g_libraw, "libraw_set_output_tif");
-    return (p_init && p_open_file && p_unpack && p_dcraw_process && p_tiff_writer && p_close);
+    return (p_init && p_open_file && p_unpack && p_dcraw_process && p_tiff_writer && p_close &&
+            p_set_output_bps && p_set_no_auto_bright && p_set_output_tif);
 }
 
 static char* convert_raw(const char *rawpath) {

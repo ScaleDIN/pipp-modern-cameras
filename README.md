@@ -91,7 +91,9 @@ Both binaries load `raw_r.dll` at runtime and only use LibRaw's stable C API (`l
 4. Check its dependencies with `objdump -p raw_r.dll | grep "DLL Name"`. If it needs runtime DLLs other than `MSVCP140`, `VCRUNTIME140`, `VCRUNTIME140_1` and `VCOMP140`, update the check in `install.ps1`.
 5. Build a new release (see below).
 
-If LibRaw ever renames or removes one of the core functions above, LibRaw support silently turns off, because both binaries check for them at load time. The exception is the three `libraw_set_output_*` setters, which `pipp_core_wrapper.c` doesn't check yet; a missing setter would crash the conversion. Testing in step 2 catches either case.
+If LibRaw ever renames or removes one of the functions above, LibRaw support silently turns off and PIPP falls back to dcraw, because both binaries check for every function they use at load time. Testing in step 2 catches this.
+
+`pipp_core_orig.exe` can't be run standalone from a script; it only works when driven by PIPP.exe. To test the wrapper outside the GUI, put it in a folder next to a stub `pipp_core_orig.exe` built from [`tools/stub_orig.c`](tools/stub_orig.c), which logs each line it receives on stdin to `stub_log.txt`, then pipe it an option line and some RAW paths. Each RAW path should come through as a valid `.tif` in `%TEMP%\pipp_libraw_<pid>\`.
 
 ### Adding a new RAW file extension
 
