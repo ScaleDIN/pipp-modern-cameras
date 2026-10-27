@@ -1,0 +1,23 @@
+# Build intermediates
+*.o
+*.obj
+
+# Test RAW files (large binaries)
+*.arw
+*.nef
+*.orf
+*.raf
+*.cr2
+*.cr3
+*.dng
+
+# Test directories
+test_install/
+test_output*/
+original_backup/
+
+# LibRaw source build (large)
+libraw_build/
+
+# .NET patcher experiment
+patcher/
