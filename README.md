@@ -25,7 +25,7 @@ Older cameras that already work with PIPP continue to work — the original dcra
 
 1. Download the latest release zip
 2. Extract it somewhere (e.g. your Desktop)
-3. Right-click **`install.ps1`** and select **Run with PowerShell**
+3. Double-click **`install.bat`**. If Windows SmartScreen says "Windows protected your PC", click **More info** → **Run anyway**.
 4. Click **Yes** when prompted for administrator access
 
 If the Microsoft Visual C++ Redistributable (x64) isn't installed, the installer offers to download and install it from Microsoft. LibRaw needs it to run.
@@ -34,7 +34,9 @@ That's it. Launch PIPP normally and your modern camera RAW files will be accepte
 
 ## Uninstall
 
-Right-click **`uninstall.ps1`** and select **Run with PowerShell**. This restores PIPP to its original state.
+Double-click **`uninstall.bat`**. This restores PIPP to its original state.
+
+The `.bat` files just run `install.ps1` / `uninstall.ps1` with PowerShell's execution policy bypassed for that one run, so you don't get the "running scripts is disabled on this system" error. You can also run the scripts directly, e.g. `powershell -ExecutionPolicy Bypass -File .\install.ps1`.
 
 Or from a PowerShell prompt:
 
@@ -110,6 +112,7 @@ New camera models using an existing extension (e.g. a new `.arw` body) need no c
 The release zip contains:
 
 ```
+install.bat          uninstall.bat
 install.ps1          uninstall.ps1        README.md
 LICENSE              THIRD-PARTY-NOTICES.md
 licenses/LibRaw-LGPL-2.1.txt

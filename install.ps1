@@ -139,7 +139,7 @@ Write-Host ""
 Write-Host "  Supported: Sony A1 II, Nikon Z 9/Z 7 II, Canon R5 II, Fujifilm X-H2S," -ForegroundColor Gray
 Write-Host "  OM System OM-1, Panasonic S5 II, and hundreds more." -ForegroundColor Gray
 Write-Host ""
-Write-Host "  To uninstall, run uninstall.ps1" -ForegroundColor Yellow
+Write-Host "  To uninstall, run uninstall.bat" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Press any key to exit..." -ForegroundColor Gray
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
