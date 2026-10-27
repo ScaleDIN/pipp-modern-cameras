@@ -113,13 +113,8 @@ static const char* maybe_convert(const char *line) {
     size_t len = strlen(line);
     if (g_have_libraw && len > 4 && line[0] != '-' && is_raw_extension(line) &&
         GetFileAttributesA(line) != INVALID_FILE_ATTRIBUTES) {
-        fprintf(stderr, "[pipp_core_wrapper] Converting: %s\n", line);
         char *tiff = convert_raw(line);
-        if (tiff) {
-            fprintf(stderr, "[pipp_core_wrapper] -> %s\n", tiff);
-            return tiff;
-        }
-        fprintf(stderr, "[pipp_core_wrapper] Conversion failed, passing original\n");
+        if (tiff) return tiff;
     }
     return line;
 }
@@ -167,8 +162,6 @@ int main(int argc, char *argv[]) {
     snprintf(cmdline, sizeof(cmdline), "\"%s\"", orig_path);
 
     if (!CreateProcessA(NULL, cmdline, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
-        fprintf(stderr, "[pipp_core_wrapper] Failed to launch pipp_core_orig.exe (err %lu)\n",
-                GetLastError());
         cleanup();
         return 1;
     }

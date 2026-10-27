@@ -21,3 +21,5 @@ libraw_build/
 
 # .NET patcher experiment
 patcher/
+dist/
+*.zip
