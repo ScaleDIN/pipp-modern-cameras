@@ -28,6 +28,8 @@ Older cameras that already work with PIPP continue to work — the original dcra
 3. Right-click **`install.ps1`** and select **Run with PowerShell**
 4. Click **Yes** when prompted for administrator access
 
+If the Microsoft Visual C++ Redistributable (x64) isn't installed, the installer offers to download and install it from Microsoft. LibRaw needs it to run.
+
 That's it. Launch PIPP normally and your modern camera RAW files will be accepted.
 
 ## Uninstall
@@ -75,4 +77,6 @@ gcc -O2 -o pipp_core.exe pipp_core_wrapper.c -lkernel32
 
 ## License
 
-This project patches PIPP by replacing two files with compatible wrappers. It does not contain or distribute any PIPP source code. LibRaw is used under the [LGPL 2.1](https://www.libraw.org/about) / [CDDL 1.0](https://www.libraw.org/about) dual license.
+The code in this repository is released under the [MIT License](LICENSE).
+
+This project patches PIPP by replacing two files with compatible wrappers. It does not contain or distribute any PIPP code or binaries. The release zip bundles LibRaw (`raw_r.dll`, used under the LGPL 2.1) and Microsoft's OpenMP runtime (`vcomp140.dll`). See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for their licenses.

@@ -63,6 +63,40 @@ foreach ($f in $needed) {
     }
 }
 
+# --- Check Microsoft Visual C++ runtime (needed by raw_r.dll) ---
+$sys32 = "$env:SystemRoot\System32"
+$vcMissing = @("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll") |
+    Where-Object { -not (Test-Path "$sys32\$_") }
+
+if ($vcMissing) {
+    $vcUrl = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+    Write-Warn "Microsoft Visual C++ Redistributable (x64) is not installed."
+    Write-Host "  LibRaw needs it to run. Missing: $($vcMissing -join ', ')" -ForegroundColor Yellow
+    $answer = Read-Host "  Download and install it from Microsoft now? (Y/N)"
+    if ($answer -match '^[Yy]') {
+        $vcExe = Join-Path $env:TEMP "vc_redist.x64.exe"
+        try {
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            Invoke-WebRequest -Uri $vcUrl -OutFile $vcExe -UseBasicParsing
+            $proc = Start-Process $vcExe -ArgumentList "/install /passive /norestart" -Wait -PassThru
+            # 3010 = reboot required, 1638 = newer version already installed
+            if ($proc.ExitCode -in 0, 3010, 1638) {
+                Write-Ok "Installed Visual C++ Redistributable"
+            } else {
+                Write-Warn "Visual C++ installer exited with code $($proc.ExitCode)"
+            }
+        } catch {
+            Write-Err "Could not install Visual C++ Redistributable: $_"
+            Write-Host "  Install it manually from: $vcUrl" -ForegroundColor Yellow
+        } finally {
+            Remove-Item $vcExe -Force -ErrorAction SilentlyContinue
+        }
+    } else {
+        Write-Warn "Skipped. Modern RAW files won't load until you install it from:"
+        Write-Host "  $vcUrl" -ForegroundColor Yellow
+    }
+}
+
 Write-Host ""
 Write-Host "  Installing modern camera support for PIPP" -ForegroundColor White
 Write-Host "  Target: $PippDir" -ForegroundColor Gray
