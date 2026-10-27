@@ -75,6 +75,56 @@ gcc -shared -O2 -o pipp_dll.dll pipp_dll_proxy.c pipp_dll_proxy.def -lkernel32
 gcc -O2 -o pipp_core.exe pipp_core_wrapper.c -lkernel32
 ```
 
+If MinGW is installed in a path with spaces (e.g. via WinGet) and `ld` can't find `default-manifest.o`, create a junction with `mklink /J C:\mingw64 "<actual MinGW path>"` and build from there.
+
+## Maintaining this package
+
+### Updating LibRaw
+
+Both binaries load `raw_r.dll` at runtime and only use LibRaw's stable C API (`libraw_init`, `libraw_open_file`, `libraw_unpack`, `libraw_dcraw_process`, `libraw_dcraw_ppm_tiff_writer`, `libraw_set_output_*`, `libraw_close`, `libraw_version`). A newer LibRaw is normally a drop-in replacement with no rebuild.
+
+1. Get a new `raw_r.dll` (x64, thread-safe build):
+   - **Easiest:** `pip install --upgrade rawpy`, then copy `raw_r.dll` (and `vcomp140.dll`) from `site-packages/rawpy/`.
+   - **Or** build [LibRaw](https://github.com/LibRaw/LibRaw) from source with MSVC and use the thread-safe `raw_r` library. It must be named `raw_r.dll`.
+2. Copy it into a test PIPP install and open a RAW file from each major brand (Sony, Nikon, Canon, Fujifilm, OM System), plus a file from any newly supported camera. PIPP's About box shows the loaded LibRaw version.
+3. Update the version numbers in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) (LibRaw, rawpy, and the bundled zlib / libjpeg-turbo versions, which you can find with `strings raw_r.dll | grep -i copyright`).
+4. Check its dependencies with `objdump -p raw_r.dll | grep "DLL Name"`. If it needs runtime DLLs other than `MSVCP140`, `VCRUNTIME140`, `VCRUNTIME140_1` and `VCOMP140`, update the check in `install.ps1`.
+5. Build a new release (see below).
+
+If LibRaw ever renames or removes one of the core functions above, LibRaw support silently turns off, because both binaries check for them at load time. The exception is the three `libraw_set_output_*` setters, which `pipp_core_wrapper.c` doesn't check yet; a missing setter would crash the conversion. Testing in step 2 catches either case.
+
+### Adding a new RAW file extension
+
+New camera models using an existing extension (e.g. a new `.arw` body) need no code change. For a brand-new extension, add it to the extension list in **both** `pipp_dll_proxy.c` and `pipp_core_wrapper.c`, then rebuild both binaries.
+
+### Changing the wrapper code
+
+- `pipp_core.exe` must never write to stderr. PIPP shows anything on pipp_core's stderr as an error dialog.
+- `pipp_core_orig.exe` reads all of its input from stdin and waits until stdin closes, so the wrapper must always close its end of the pipe.
+- `pipp_dll.dll` must keep exporting everything `pipp_dll_orig.dll` exports. The libpng exports are forwarded through `pipp_dll_proxy.def`; don't remove entries from it.
+
+### Building a release
+
+The release zip contains:
+
+```
+install.ps1          uninstall.ps1        README.md
+LICENSE              THIRD-PARTY-NOTICES.md
+licenses/LibRaw-LGPL-2.1.txt
+pipp_dll.dll         pipp_core.exe
+raw_r.dll            vcomp140.dll
+```
+
+1. Copy those files into `dist/pipp-modern-cameras/`.
+2. Build the zip with forward-slash paths, so it extracts correctly on every OS:
+   ```powershell
+   tar.exe -a -c -f pipp-modern-cameras.zip -C dist\pipp-modern-cameras *
+   ```
+3. Test it: extract to a fresh folder, run `install.ps1` against a clean PIPP 2.5.9 install, open a modern RAW file, then run `uninstall.ps1` and confirm PIPP still works.
+4. Tag the commit and upload the zip as a GitHub release, noting the LibRaw version in the release notes.
+
+`dist/` and `*.zip` are git-ignored; only the source and scripts are tracked.
+
 ## License
 
 The code in this repository is released under the [MIT License](LICENSE).
